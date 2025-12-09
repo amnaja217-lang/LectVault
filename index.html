@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيق ملفات المحاضرات | Lecture Files App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary-color: #6a11cb; /* بنفسجي */
+            --secondary-color: #2575fc; /* أزرق ملكي */
+            --accent-color: #8a2be2; /* بنفسجي متوسط */
+            --light-color: #f8f4ff;
+            --dark-color: #333344;
+            --text-color: #333;
+            --text-light: #777;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --shadow: 0 4px 12px rgba(106, 17, 203, 0.1);
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f8f4ff 0%, #f0f4ff 100%);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding-bottom: 50px;
+            transition: all 0.3s ease;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* تنسيق الرأس */
+        header {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: 0 4px 15px rgba(106, 17, 203, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo-icon {
+            font-size: 2rem;
+        }
+        
+        /* زر تبديل اللغة */
+        .lang-switcher {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .lang-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        .lang-btn.active {
+            background: white;
+            color: var(--primary-color);
+        }
+        
+        .lang-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        /* قسم رفع الملفات */
+        .upload-section {
+            background-color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(106, 17, 203, 0.1);
+        }
+        
+        .upload-area {
+            border: 3px dashed var(--primary-color);
+            border-radius: 12px;
+            padding: 3rem 1rem;
+            text-align: center;
+            margin-top: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            background-color: var(--light-color);
+        }
+        
+        .upload-area:hover {
+            background-color: rgba(106, 17, 203, 0.05);
+            border-color: var(--accent-color);
+            transform: translateY(-3px);
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        /* تصنيف الملفات */
+        .category-filter {
+            display: flex;
+            gap: 10px;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .category-btn {
+            background-color: #f0e6ff;
+            border: 1px solid #d9c8ff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--primary-color);
+        }
+        
+        .category-btn.active, .category-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        /* قسم عرض الملفات */
+        .files-section {
+            background-color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(106, 17, 203, 0.1);
+        }
+        
+        .files-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .file-card {
+            border: 1px solid #eae2ff;
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            position: relative;
+            background-color: white;
+        }
+        
+        .file-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 20px rgba(106, 17, 203, 0.15);
+            border-color: var(--accent-color);
+        }
+        
+        .file-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .pdf-icon { color: #ff6b6b; }
+        .doc-icon { color: #4d96ff; }
+        .ppt-icon { color: #ff9f43; }
+        .img-icon { color: #1dd1a1; }
+        .zip-icon { color: #9b59b6; }
+        .other-icon { color: #95a5a6; }
+        
+        .file-name {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            word-break: break-word;
+            color: var(--dark-color);
+        }
+        
+        .file-details {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .file-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 1rem;
+        }
+        
+        .action-btn {
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            flex: 1;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        .download-btn {
+            background: linear-gradient(to right, var(--secondary-color), #4d96ff);
+            color: white;
+        }
+        
+        .download-btn:hover {
+            background: linear-gradient(to right, #1c6af0, #3d8aff);
+            transform: translateY(-2px);
+        }
+        
+        .delete-btn {
+            background: linear-gradient(to right, #ff6b6b, #ff8e8e);
+            color: white;
+        }
+        
+        .delete-btn:hover {
+            background: linear-gradient(to right, #ff5252, #ff7b7b);
+            transform: translateY(-2px);
+        }
+        
+        /* قسم الإحصائيات */
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, white, #f8f4ff);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(106, 17, 203, 0.1);
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0.5rem 0;
+        }
+        
+        /* تنبيهات */
+        .alert {
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            display: none;
+            border-right: 5px solid;
+        }
+        
+        .alert-success {
+            background-color: #d4ffea;
+            color: #006644;
+            border-right-color: #00c851;
+        }
+        
+        .alert-warning {
+            background-color: #fff8e1;
+            color: #856404;
+            border-right-color: #ffc107;
+        }
+        
+        .alert-info {
+            background-color: #e1f5fe;
+            color: #01579b;
+            border-right-color: #4d96ff;
+        }
+        
+        /* زر الإجراءات */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(to right, #5a0cb9, #1c6af0);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(106, 17, 203, 0.3);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(to right, #95a5a6, #7f8c8d);
+            color: white;
+            margin-right: 10px;
+        }
+        
+        .btn-secondary:hover {
+            background: linear-gradient(to right, #7f8c8d, #6c7b7d);
+            transform: translateY(-3px);
+        }
+        
+        /* تذييل الصفحة */
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+        
+        /* تنسيقات متجاوبة */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .files-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .lang-switcher {
+                margin-top: 10px;
+            }
+        }
+        
+        /* شريط التقدم */
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: #eae2ff;
+            border-radius: 5px;
+            margin-top: 1rem;
+            overflow: hidden;
+            display: none;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        /* تنسيقات إضافية */
+        h2 {
+            color: var(--dark-color);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary-color);
+        }
+        
+        select, input[type="text"] {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #d9c8ff;
+            background-color: white;
+            color: var(--text-color);
+            transition: all 0.3s;
+        }
+        
+        select:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.1);
+        }
+        
+        /* تأثيرات الظل للأقسام */
+        .upload-section, .files-section, .stat-card {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .upload-section:hover, .files-section:hover, .stat-card:hover {
+            box-shadow: 0 8px 25px rgba(106, 17, 203, 0.15);
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">📚</div>
+                    <h1 id="app-title">تطبيق ملفات المحاضرات</h1>
+                </div>
+                
+                <div class="lang-switcher">
+                    <button class="lang-btn active" id="lang-ar">العربية</button>
+                    <button class="lang-btn" id="lang-en">English</button>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- قسم رفع الملفات -->
+        <section class="upload-section">
+            <h2><i class="fas fa-cloud-upload-alt"></i> <span id="upload-title">رفع ملفات جديدة</span></h2>
+            <p id="upload-description">اسحب وأفلت الملفات هنا أو انقر لاختيار الملفات</p>
+            
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">
+                    <i class="fas fa-file-upload"></i>
+                </div>
+                <p id="upload-area-text">انقر هنا لاختيار الملفات أو اسحبها إلى هذه المنطقة</p>
+                <p style="color: var(--text-light); margin-top: 10px; font-size: 0.9rem;" id="upload-hint">
+                    يمكنك رفع ملفات PDF، Word، PowerPoint، الصور، وغيرها
+                </p>
+                <input type="file" class="file-input" id="fileInput" multiple>
+            </div>
+            
+            <div class="progress-bar" id="progressBar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            
+            <div style="margin-top: 1.5rem;">
+                <label for="fileCategory" id="category-label">تصنيف الملف:</label>
+                <select id="fileCategory" style="margin-right: 10px;">
+                    <option value="عام">عام</option>
+                    <option value="رياضيات">رياضيات</option>
+                    <option value="فيزياء">فيزياء</option>
+                    <option value="كيمياء">كيمياء</option>
+                    <option value="برمجة">برمجة</option>
+                    <option value="لغة عربية">لغة عربية</option>
+                    <option value="لغة إنجليزية">لغة إنجليزية</option>
+                    <option value="تاريخ">تاريخ</option>
+                    <option value="أخرى">أخرى</option>
+                </select>
+                
+                <button class="btn btn-primary" id="uploadBtn">
+                    <i class="fas fa-upload"></i> <span id="upload-btn-text">رفع الملفات</span>
+                </button>
+            </div>
+            
+            <div class="alert alert-info" id="storageWarning" style="display: block;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span id="storage-warning-text">ملاحظة: الملفات مخزنة محلياً في متصفحك فقط. لنسخ احتياطي آمن، يرجى حفظ ملفاتك في مكان آخر أيضاً.</span>
+            </div>
+        </section>
+        
+        <!-- تنبيهات -->
+        <div class="alert alert-success" id="successAlert">
+            <i class="fas fa-check-circle"></i> <span id="success-alert-text">تم رفع الملف بنجاح!</span>
+        </div>
+        
+        <!-- تصفية الملفات -->
+        <section class="files-section">
+            <h2><i class="fas fa-filter"></i> <span id="filter-title">تصفية الملفات حسب التصنيف</span></h2>
+            <div class="category-filter" id="categoryFilter">
+                <div class="category-btn active" data-category="الكل"><span id="all-category">الكل</span></div>
+                <!-- سيتم إضافة التصنيفات ديناميكياً -->
+            </div>
+        </section>
+        
+        <!-- عرض الملفات -->
+        <section class="files-section">
+            <h2><i class="fas fa-folder-open"></i> <span id="files-title">ملفات المحاضرات</span></h2>
+            <p id="noFilesMessage" style="text-align: center; padding: 2rem; color: var(--text-light);">
+                <span id="no-files-text">لا توجد ملفات بعد. ابدأ برفع ملفاتك الأولى!</span>
+            </p>
+            <div class="files-grid" id="filesGrid">
+                <!-- سيتم إضافة الملفات هنا ديناميكياً -->
+            </div>
+        </section>
+        
+        <!-- الإحصائيات -->
+        <div class="stats-section">
+            <div class="stat-card">
+                <div id="total-files-label">إجمالي الملفات</div>
+                <div class="stat-number" id="total-files">0</div>
+            </div>
+            <div class="stat-card">
+                <div id="total-size-label">إجمالي الحجم</div>
+                <div class="stat-number" id="total-size">0 م.ب</div>
+            </div>
+            <div class="stat-card">
+                <div id="categories-label">عدد التصنيفات</div>
+                <div class="stat-number" id="total-categories">0</div>
+            </div>
+        </div>
+        
+        <footer>
+            <p id="footer-text">© 2023 تطبيق ملفات المحاضرات - تم التطوير لتنظيم ملفاتك الدراسية</p>
+            <p style="margin-top: 10px;">
+                <button class="btn btn-primary" id="backupBtn">
+                    <i class="fas fa-download"></i> <span id="backup-btn-text">إنشاء نسخة احتياطية</span>
+                </button>
+                <button class="btn btn-secondary" id="restoreBtn">
+                    <i class="fas fa-upload"></i> <span id="restore-btn-text">استعادة النسخة الاحتياطية</span>
+                </button>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // تعريف النصوص للغتين
+        const translations = {
+            ar: {
+                appTitle: "تطبيق ملفات المحاضرات",
+                uploadTitle: "رفع ملفات جديدة",
+                uploadDescription: "اسحب وأفلت الملفات هنا أو انقر لاختيار الملفات",
+                uploadAreaText: "انقر هنا لاختيار الملفات أو اسحبها إلى هذه المنطقة",
+                uploadHint: "يمكنك رفع ملفات PDF، Word، PowerPoint، الصور، وغيرها",
+                categoryLabel: "تصنيف الملف:",
+                uploadBtnText: "رفع الملفات",
+                storageWarningText: "ملاحظة: الملفات مخزنة محلياً في متصفحك فقط. لنسخ احتياطي آمن، يرجى حفظ ملفاتك في مكان آخر أيضاً.",
+                successAlertText: "تم رفع الملف بنجاح!",
+                filterTitle: "تصفية الملفات حسب التصنيف",
+                allCategory: "الكل",
+                filesTitle: "ملفات المحاضرات",
+                noFilesText: "لا توجد ملفات بعد. ابدأ برفع ملفاتك الأولى!",
+                totalFilesLabel: "إجمالي الملفات",
+                totalSizeLabel: "إجمالي الحجم",
+                categoriesLabel: "عدد التصنيفات",
+                footerText: "© 2023 تطبيق ملفات المحاضرات - تم التطوير لتنظيم ملفاتك الدراسية",
+                backupBtnText: "إنشاء نسخة احتياطية",
+                restoreBtnText: "استعادة النسخة الاحتياطية",
+                downloadBtnText: "تنزيل",
+                deleteBtnText: "حذف",
+                categoryNames: {
+                    "عام": "عام",
+                    "رياضيات": "رياضيات",
+                    "فيزياء": "فيزياء",
+                    "كيمياء": "كيمياء",
+                    "برمجة": "برمجة",
+                    "لغة عربية": "لغة عربية",
+                    "لغة إنجليزية": "لغة إنجليزية",
+                    "تاريخ": "تاريخ",
+                    "أخرى": "أخرى"
+                },
+                fileDetails: {
+                    category: "التصنيف",
+                    size: "الحجم",
+                    date: "التاريخ"
+                },
+                alerts: {
+                    noFiles: "يرجى اختيار ملفات أولاً",
+                    deleteConfirm: "هل أنت متأكد من حذف هذا الملف؟",
+                    backupSuccess: "تم إنشاء النسخة الاحتياطية بنجاح!",
+                    noBackupFiles: "لا توجد ملفات لإنشاء نسخة احتياطية",
+                    restoreConfirm: "سيتم استعادة {count} ملف. هل تريد المتابعة؟",
+                    restoreSuccess: "تم استعادة النسخة الاحتياطية بنجاح!",
+                    restoreError: "خطأ في استعادة النسخة الاحتياطية: ملف غير صالح"
+                }
+            },
+            en: {
+                appTitle: "Lecture Files App",
+                uploadTitle: "Upload New Files",
+                uploadDescription: "Drag and drop files here or click to select files",
+                uploadAreaText: "Click here to select files or drag them to this area",
+                uploadHint: "You can upload PDF, Word, PowerPoint, Images, and other files",
+                categoryLabel: "File Category:",
+                uploadBtnText: "Upload Files",
+                storageWarningText: "Note: Files are stored locally in your browser only. For secure backup, please save your files elsewhere as well.",
+                successAlertText: "File uploaded successfully!",
+                filterTitle: "Filter Files by Category",
+                allCategory: "All",
+                filesTitle: "Lecture Files",
+                noFilesText: "No files yet. Start by uploading your first files!",
+                totalFilesLabel: "Total Files",
+                totalSizeLabel: "Total Size",
+                categoriesLabel: "Categories",
+                footerText: "© 2023 Lecture Files App - Developed to organize your study files",
+                backupBtnText: "Create Backup",
+                restoreBtnText: "Restore Backup",
+                downloadBtnText: "Download",
+                deleteBtnText: "Delete",
+                categoryNames: {
+                    "عام": "General",
+                    "رياضيات": "Mathematics",
+                    "فيزياء": "Physics",
+                    "كيمياء": "Chemistry",
+                    "برمجة": "Programming",
+                    "لغة عربية": "Arabic Language",
+                    "لغة إنجليزية": "English Language",
+                    "تاريخ": "History",
+                    "أخرى": "Other"
+                },
+                fileDetails: {
+                    category: "Category",
+                    size: "Size",
+                    date: "Date"
+                },
+                alerts: {
+                    noFiles: "Please select files first",
+                    deleteConfirm: "Are you sure you want to delete this file?",
+                    backupSuccess: "Backup created successfully!",
+                    noBackupFiles: "No files to create a backup",
+                    restoreConfirm: "{count} files will be restored. Do you want to continue?",
+                    restoreSuccess: "Backup restored successfully!",
+                    restoreError: "Error restoring backup: Invalid file"
+                }
+            }
+        };
+        
+        // اللغة الحالية
+        let currentLang = 'ar';
+        
+        // مصفوفة لتخزين الملفات
+        let lectureFiles = [];
+        
+        // عناصر DOM
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const filesGrid = document.getElementById('filesGrid');
+        const noFilesMessage = document.getElementById('noFilesMessage');
+        const successAlert = document.getElementById('successAlert');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const totalFilesElement = document.getElementById('total-files');
+        const totalSizeElement = document.getElementById('total-size');
+        const totalCategoriesElement = document.getElementById('total-categories');
+        const fileCategorySelect = document.getElementById('fileCategory');
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+        const backupBtn = document.getElementById('backupBtn');
+        const restoreBtn = document.getElementById('restoreBtn');
+        const storageWarning = document.getElementById('storageWarning');
+        const langArBtn = document.getElementById('lang-ar');
+        const langEnBtn = document.getElementById('lang-en');
+        
+        // تحميل الملفات من localStorage عند بدء التشغيل
+        document.addEventListener('DOMContentLoaded', function() {
+            loadFilesFromStorage();
+            updateStats();
+            updateCategoryFilter();
+            checkStorageCapacity();
+            
+            // إعداد أحداث تبديل اللغة
+            langArBtn.addEventListener('click', () => switchLanguage('ar'));
+            langEnBtn.addEventListener('click', () => switchLanguage('en'));
+        });
+        
+        // تبديل اللغة
+        function switchLanguage(lang) {
+            currentLang = lang;
+            
+            // تحديث أزرار اللغة
+            langArBtn.classList.toggle('active', lang === 'ar');
+            langEnBtn.classList.toggle('active', lang === 'en');
+            
+            // تحديث اتجاه الصفحة
+            document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+            document.documentElement.lang = lang;
+            
+            // تحديث جميع النصوص
+            updateAllTexts();
+            
+            // إعادة عرض الملفات مع النصوص الجديدة
+            displayFiles();
+        }
+        
+        // تحديث جميع النصوص في الصفحة
+        function updateAllTexts() {
+            const t = translations[currentLang];
+            
+            // تحديث العناوين والنصوص
+            document.getElementById('app-title').textContent = t.appTitle;
+            document.getElementById('upload-title').textContent = t.uploadTitle;
+            document.getElementById('upload-description').textContent = t.uploadDescription;
+            document.getElementById('upload-area-text').textContent = t.uploadAreaText;
+            document.getElementById('upload-hint').textContent = t.uploadHint;
+            document.getElementById('category-label').textContent = t.categoryLabel;
+            document.getElementById('upload-btn-text').textContent = t.uploadBtnText;
+            document.getElementById('storage-warning-text').textContent = t.storageWarningText;
+            document.getElementById('success-alert-text').textContent = t.successAlertText;
+            document.getElementById('filter-title').textContent = t.filterTitle;
+            document.getElementById('all-category').textContent = t.allCategory;
+            document.getElementById('files-title').textContent = t.filesTitle;
+            document.getElementById('no-files-text').textContent = t.noFilesText;
+            document.getElementById('total-files-label').textContent = t.totalFilesLabel;
+            document.getElementById('total-size-label').textContent = t.totalSizeLabel;
+            document.getElementById('categories-label').textContent = t.categoriesLabel;
+            document.getElementById('footer-text').textContent = t.footerText;
+            document.getElementById('backup-btn-text').textContent = t.backupBtnText;
+            document.getElementById('restore-btn-text').textContent = t.restoreBtnText;
+            
+            // تحديث خيارات التصنيف في القائمة المنسدلة
+            updateCategorySelectOptions();
+            
+            // تحديث تصفية التصنيفات
+            updateCategoryFilter();
+        }
+        
+        // تحديث خيارات التصنيف في القائمة المنسدلة
+        function updateCategorySelectOptions() {
+            const t = translations[currentLang];
+            const options = fileCategorySelect.options;
+            
+            for (let i = 0; i < options.length; i++) {
+                const option = options[i];
+                const originalValue = option.value;
+                option.textContent = t.categoryNames[originalValue] || originalValue;
+            }
+        }
+        
+        // أحداث رفع الملفات
+        uploadArea.addEventListener('click', () => fileInput.click());
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.backgroundColor = 'rgba(106, 17, 203, 0.05)';
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.backgroundColor = '';
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.backgroundColor = '';
+            
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                showProgressBar();
+                simulateUpload();
+            }
+        });
+        
+        // زر رفع الملفات
+        uploadBtn.addEventListener('click', () => {
+            if (fileInput.files.length === 0) {
+                alert(translations[currentLang].alerts.noFiles);
+                return;
+            }
+            
+            showProgressBar();
+            simulateUpload();
+        });
+        
+        // محاكاة عملية رفع الملف
+        function simulateUpload() {
+            progressFill.style.width = '0%';
+            let progress = 0;
+            
+            const interval = setInterval(() => {
+                progress += 10;
+                progressFill.style.width = `${progress}%`;
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        saveFiles();
+                        progressBar.style.display = 'none';
+                    }, 300);
+                }
+            }, 100);
+        }
+        
+        function showProgressBar() {
+            progressBar.style.display = 'block';
+            progressFill.style.width = '0%';
+        }
+        
+        // حفظ الملفات في localStorage
+        function saveFiles() {
+            const files = fileInput.files;
+            const category = fileCategorySelect.value;
+            const categoryName = translations[currentLang].categoryNames[category] || category;
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                
+                // إنشاء كائن FileReader لقراءة محتوى الملف
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const fileData = {
+                        id: Date.now() + i,
+                        name: file.name,
+                        size: file.size,
+                        type: file.type,
+                        category: categoryName,
+                        originalCategory: category, // حفظ التصنيف الأصلي
+                        lastModified: file.lastModified,
+                        dataUrl: e.target.result // بيانات الملف بصيغة base64
+                    };
+                    
+                    lectureFiles.push(fileData);
+                    
+                    // حفظ في localStorage
+                    localStorage.setItem('lectureFiles', JSON.stringify(lectureFiles));
+                    
+                    // عرض الملف
+                    displayFiles();
+                    updateStats();
+                    updateCategoryFilter();
+                    
+                    // إظهار تنبيه النجاح
+                    successAlert.style.display = 'block';
+                    setTimeout(() => {
+                        successAlert.style.display = 'none';
+                    }, 3000);
+                    
+                    // إعادة تعيين حقل الملفات
+                    fileInput.value = '';
+                };
+                
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        // تحميل الملفات من localStorage
+        function loadFilesFromStorage() {
+            const storedFiles = localStorage.getItem('lectureFiles');
+            
+            if (storedFiles) {
+                lectureFiles = JSON.parse(storedFiles);
+                displayFiles();
+            }
+        }
+        
+        // عرض الملفات في الشبكة
+        function displayFiles(category = translations[currentLang].allCategory) {
+            filesGrid.innerHTML = '';
+            
+            let filteredFiles = lectureFiles;
+            if (category !== translations[currentLang].allCategory) {
+                filteredFiles = lectureFiles.filter(file => file.category === category);
+            }
+            
+            if (filteredFiles.length === 0) {
+                noFilesMessage.style.display = 'block';
+                return;
+            }
+            
+            noFilesMessage.style.display = 'none';
+            
+            filteredFiles.forEach(file => {
+                const fileCard = createFileCard(file);
+                filesGrid.appendChild(fileCard);
+            });
+        }
+        
+        // إنشاء بطاقة ملف
+        function createFileCard(file) {
+            const fileCard = document.createElement('div');
+            fileCard.className = 'file-card';
+            
+            // تحديد أيقونة الملف حسب النوع
+            let iconClass = 'other-icon';
+            let icon = 'fa-file';
+            
+            if (file.type.includes('pdf')) {
+                iconClass = 'pdf-icon';
+                icon = 'fa-file-pdf';
+            } else if (file.type.includes('word') || file.type.includes('doc')) {
+                iconClass = 'doc-icon';
+                icon = 'fa-file-word';
+            } else if (file.type.includes('powerpoint') || file.type.includes('ppt')) {
+                iconClass = 'ppt-icon';
+                icon = 'fa-file-powerpoint';
+            } else if (file.type.includes('image')) {
+                iconClass = 'img-icon';
+                icon = 'fa-file-image';
+            } else if (file.type.includes('zip') || file.type.includes('compressed')) {
+                iconClass = 'zip-icon';
+                icon = 'fa-file-archive';
+            }
+            
+            // تنسيق حجم الملف
+            const fileSize = formatFileSize(file.size);
+            
+            // تنسيق التاريخ
+            const fileDate = new Date(file.lastModified).toLocaleDateString(currentLang === 'ar' ? 'ar-SA' : 'en-US');
+            
+            const t = translations[currentLang];
+            
+            fileCard.innerHTML = `
+                <div class="file-icon ${iconClass}">
+                    <i class="fas ${icon}"></i>
+                </div>
+                <div class="file-name">${file.name}</div>
+                <div class="file-details">
+                    <div><i class="fas fa-tag"></i> ${t.fileDetails.category}: ${file.category}</div>
+                    <div><i class="fas fa-weight-hanging"></i> ${t.fileDetails.size}: ${fileSize}</div>
+                    <div><i class="fas fa-calendar"></i> ${t.fileDetails.date}: ${fileDate}</div>
+                </div>
+                <div class="file-actions">
+                    <button class="action-btn download-btn" data-id="${file.id}">
+                        <i class="fas fa-download"></i> ${t.downloadBtnText}
+                    </button>
+                    <button class="action-btn delete-btn" data-id="${file.id}">
+                        <i class="fas fa-trash"></i> ${t.deleteBtnText}
+                    </button>
+                </div>
+            `;
+            
+            // إضافة أحداث للأزرار
+            const downloadBtn = fileCard.querySelector('.download-btn');
+            const deleteBtn = fileCard.querySelector('.delete-btn');
+            
+            downloadBtn.addEventListener('click', () => downloadFile(file));
+            deleteBtn.addEventListener('click', () => deleteFile(file.id));
+            
+            return fileCard;
+        }
+        
+        // تنزيل الملف
+        function downloadFile(file) {
+            const link = document.createElement('a');
+            link.href = file.dataUrl;
+            link.download = file.name;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        // حذف الملف
+        function deleteFile(fileId) {
+            const t = translations[currentLang];
+            
+            if (confirm(t.alerts.deleteConfirm)) {
+                lectureFiles = lectureFiles.filter(file => file.id !== fileId);
+                localStorage.setItem('lectureFiles', JSON.stringify(lectureFiles));
+                displayFiles();
+                updateStats();
+                updateCategoryFilter();
+            }
+        }
+        
+        // تحديث الإحصائيات
+        function updateStats() {
+            totalFilesElement.textContent = lectureFiles.length;
+            
+            const totalSize = lectureFiles.reduce((sum, file) => sum + file.size, 0);
+            totalSizeElement.textContent = formatFileSize(totalSize);
+            
+            // حساب عدد التصنيفات الفريدة
+            const uniqueCategories = [...new Set(lectureFiles.map(file => file.category))];
+            totalCategoriesElement.textContent = uniqueCategories.length;
+        }
+        
+        // تحديث تصفية التصنيفات
+        function updateCategoryFilter() {
+            // جمع جميع التصنيفات الفريدة
+            const t = translations[currentLang];
+            const categories = [t.allCategory];
+            
+            lectureFiles.forEach(file => {
+                if (!categories.includes(file.category)) {
+                    categories.push(file.category);
+                }
+            });
+            
+            // تحديث واجهة التصفية
+            categoryFilter.innerHTML = '';
+            
+            categories.forEach(category => {
+                const btn = document.createElement('div');
+                btn.className = 'category-btn';
+                if (category === t.allCategory) btn.classList.add('active');
+                btn.textContent = category;
+                btn.dataset.category = category;
+                
+                btn.addEventListener('click', function() {
+                    // إزالة النشاط من جميع الأزرار
+                    document.querySelectorAll('.category-btn').forEach(b => {
+                        b.classList.remove('active');
+                    });
+                    
+                    // إضافة النشاط للزر المختار
+                    this.classList.add('active');
+                    
+                    // عرض الملفات حسب التصنيف
+                    displayFiles(category);
+                });
+                
+                categoryFilter.appendChild(btn);
+            });
+        }
+        
+        // تنسيق حجم الملف
+        function formatFileSize(bytes) {
+            if (bytes === 0) return currentLang === 'ar' ? '0 بايت' : '0 Bytes';
+            
+            const k = 1024;
+            const sizesAr = ['بايت', 'ك.ب', 'م.ب', 'ج.ب'];
+            const sizesEn = ['Bytes', 'KB', 'MB', 'GB'];
+            const sizes = currentLang === 'ar' ? sizesAr : sizesEn;
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        // إنشاء نسخة احتياطية
+        backupBtn.addEventListener('click', function() {
+            const t = translations[currentLang];
+            
+            if (lectureFiles.length === 0) {
+                alert(t.alerts.noBackupFiles);
+                return;
+            }
+            
+            const backupData = JSON.stringify(lectureFiles);
+            const blob = new Blob([backupData], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `lecture_files_backup_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            setTimeout(() => URL.revokeObjectURL(url), 100);
+            
+            alert(t.alerts.backupSuccess);
+        });
+        
+        // استعادة نسخة احتياطية
+        restoreBtn.addEventListener('click', function() {
+            const t = translations[currentLang];
+            
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    try {
+                        const backupData = JSON.parse(e.target.result);
+                        
+                        if (confirm(t.alerts.restoreConfirm.replace('{count}', backupData.length))) {
+                            lectureFiles = backupData;
+                            localStorage.setItem('lectureFiles', JSON.stringify(lectureFiles));
+                            displayFiles();
+                            updateStats();
+                            updateCategoryFilter();
+                            alert(t.alerts.restoreSuccess);
+                        }
+                    } catch (error) {
+                        alert(t.alerts.restoreError);
+                    }
+                };
+                
+                reader.readAsText(file);
+            };
+            
+            input.click();
+        });
+        
+        // التحقق من سعة التخزين
+        function checkStorageCapacity() {
+            try {
+                const testData = 'test';
+                localStorage.setItem('test', testData);
+                localStorage.removeItem('test');
+            } catch (e) {
+                storageWarning.innerHTML = `
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span id="storage-warning-text">تحذير: سعة تخزين المتصفح ممتلئة! لن تتمكن من رفع المزيد من الملفات حتى تحذف بعض الملفات الحالية.</span>
+                `;
+                storageWarning.className = 'alert alert-warning';
+            }
+        }
+    </script>
+</body>
+</html>
